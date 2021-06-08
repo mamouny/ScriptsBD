@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 use App\Models\Types_caissons;
 use App\Models\Types_vehicules;
+=======
+use App\Models\Communes;
+>>>>>>> 750d7a3917ed6fdc87938f1e34d57aaf135b069f
 use Illuminate\Http\Request;
 
 class TestController extends Controller
 {
+<<<<<<< HEAD
     public function index(){
         $types_vehicules = Types_vehicules::all();
         $types_caissons = Types_caissons::all();
@@ -51,4 +56,10 @@ class TestController extends Controller
             return 'Jobi done or what ever';
         }
 
+=======
+    function index(){
+        $communes = Communes::all();
+       return view('index',['communes'=> $communes]);
+    }
+>>>>>>> 750d7a3917ed6fdc87938f1e34d57aaf135b069f
 }
