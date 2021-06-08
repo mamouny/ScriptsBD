@@ -12,6 +12,6 @@ class Communes extends Model
     protected $fillable = [
         'libelle',
         'libelle_ar',
-        'shipèfile'
+        'ship_file'
     ];
 }
