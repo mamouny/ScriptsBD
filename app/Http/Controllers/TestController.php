@@ -2,24 +2,19 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< HEAD
+use App\Models\Fonctions;
 use App\Models\Types_caissons;
 use App\Models\Types_vehicules;
-=======
-use App\Models\Communes;
->>>>>>> 750d7a3917ed6fdc87938f1e34d57aaf135b069f
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TestController extends Controller
 {
-<<<<<<< HEAD
-    public function index(){
-        $types_vehicules = Types_vehicules::all();
-        $types_caissons = Types_caissons::all();
+        public function index(){
+            $types_vehicules = Types_vehicules::all();
+            $types_caissons = Types_caissons::all();
 
-    }
-
-
+        }
 
         function csvToArray($filename = '', $delimiter = ','){
 
@@ -44,22 +39,20 @@ class TestController extends Controller
         }
 
         public function importCsv(){
-            $file = public_path('file/test.csv');
+            $file = public_path('testcaisson.csv');
+
 
             $customerArr = $this->csvToArray($file);
 
-            for ($i = 0; $i < count($customerArr); $i ++)
-            {
-                User::firstOrCreate($customerArr[$i]);
-            }
+            // for ($i = 0; $i < count($customerArr); $i ++)
+            // {
+            //     if ($customerArr[i]  ==) {
+            //         # code...
+            //     }
+            //     User::firstOrCreate($customerArr[$i]);
+            // }
 
-            return 'Jobi done or what ever';
+            dd($customerArr);
         }
 
-=======
-    function index(){
-        $communes = Communes::all();
-       return view('index',['communes'=> $communes]);
-    }
->>>>>>> 750d7a3917ed6fdc87938f1e34d57aaf135b069f
 }
