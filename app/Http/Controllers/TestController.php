@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Communes;
+use App\Models\emplacements;
 use App\Models\Fonctions;
 use App\Models\Types_caissons;
 use App\Models\Types_vehicules;
 use App\Models\User;
+use App\Models\zones;
 use Illuminate\Http\Request;
 
 class TestController extends Controller
@@ -40,19 +43,26 @@ class TestController extends Controller
 
         public function importCsv(){
             $file = public_path('testcaisson.csv');
+            $data = $this->csvToArray($file);
 
+            // dd($data[1]["COMMUNE"]);
+            $communeTz = Communes::all();
 
-            $customerArr = $this->csvToArray($file);
+            // $commune = Communes::where('libelle',"=",$communeTz)->get();
+            // $zones = zones::where('commune_id','=',$commune->id)->get();
 
-            // for ($i = 0; $i < count($customerArr); $i ++)
-            // {
-            //     if ($customerArr[i]  ==) {
-            //         # code...
-            //     }
-            //     User::firstOrCreate($customerArr[$i]);
+            dd($communeTz);
+            // if ($data[1]["COMMUNE"] == "TZ") {
+
             // }
 
-            dd($customerArr);
+            // for ($i = 0; $i < count($data); $i ++)
+            // {
+
+            //     // User::firstOrCreate($data[$i]);
+            // }
+            // dd($data);
+
         }
 
 }

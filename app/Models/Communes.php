@@ -10,4 +10,6 @@ class Communes extends Model
     use HasFactory;
 
     protected  $fillable = ['libelle','libelle_ar','ship_file'];
+
+
 }
