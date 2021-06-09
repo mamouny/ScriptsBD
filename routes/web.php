@@ -20,4 +20,4 @@ Route::get('/', function () {
 
 
 
-Route::get('/test', [TestController::class, 'index']);
+Route::get('/test', [TestController::class, 'insertEmplacements']);
