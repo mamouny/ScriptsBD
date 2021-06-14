@@ -9,5 +9,5 @@ class emplacements extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code','libelle','libelle_ar','zone_id','coordonnees_gps','etat','priorite','description'];
+    protected $fillable = ['code','libelle','libelle_ar','zone_id','coordonnees_gps','etat','priorite','CT','CB','CS','description'];
 }

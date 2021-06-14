@@ -21,3 +21,4 @@ Route::get('/', function () {
 
 
 Route::get('/test', [TestController::class, 'insertEmplacements']);
+Route::get('/agents', [TestController::class, 'insertAgents']);

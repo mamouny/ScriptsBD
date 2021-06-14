@@ -2,15 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\agents;
 use App\Models\Caissons;
 use App\Models\Communes;
 use App\Models\emplacements;
 use App\Models\emplacements_caissons;
+use App\Models\itineraires;
+use App\Models\itineraires_emplacements;
 use App\Models\zones;
 use Illuminate\Http\Request;
 
 class TestController extends Controller
 {
+    
+    function testing(){
+        $i=0;
+        $idItineraire = itineraires::where('libelle','IT-B'.($i+1))->first();
+        if($idItineraire != null){
+            dd($idItineraire->id);
+        }
+        else{
+            return "mali";
+        }
+        
+    }
     function csvToArray($filename = '', $delimiter = ','){
 
         if (!file_exists($filename) || !is_readable($filename))
@@ -37,14 +52,16 @@ class TestController extends Controller
     public function insertEmplacements(){
         $file = public_path('testcaisson.csv');
         $data = $this->csvToArray($file);
-        // dd($data[1]["COMMUNE"]);
-        // $communeTz = "TZ";
-            for ($i = 0; $i < count($data); $i ++)
-            {
-                if ($data[$i]["COMMUNE"] == "TZ") {
 
+            for ($i = 0; $i < count($data); $i++)
+            {
+                // commune TZ
+                if ($data[$i]["COMMUNE"] == "TZ") 
+                {
+                    // Zone TVZ 1
                     if($data[$i]["Zone"] == "TVZ 1")
                     {
+                        // insert emplacement
                         $emplacements = emplacements::create([
                             'code'=> $data[$i]["EMP"],
                             'libelle'=> $data[$i]["Nom emp fr"],
@@ -53,68 +70,196 @@ class TestController extends Controller
                             'coordonnees_gps'=> $data[$i]["Coordonnées GPS"],
                             'etat'=> "",
                             'priorite_id'=> 1,
+                            'CT' => (int) $data[$i]["CT"],
+                            'CB' => (int) $data[$i]["CB"],
+                            'CS' => (int) $data[$i]["CS"],
                             'description'=> ""
                         ]);
-                        //insert caisson de type CB
-                        if($data[$i]["CB"] != ""){
-                            $nbCB = $data[$i]["CB"];
-                            for ($j=0,$o=1; $j < $nbCB; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CB-".$i,
-                                    'type_caisson_id'=> 1,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        
+                        //insert itinéraire BT16 1
+                        if($data[$i]["IT B 1"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-B1')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 1"],
+                                ]);   
                             }
-                            
-                        }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B1",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 1"],
+                                ]);    
+                            }
 
-                        //insert caisson de type CS
-                        if($data[$i]["CS"] != ""){
-                            $nbCS = $data[$i]["CS"];
-                            for ($j=0,$o=1; $j < $nbCS; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CS-".$i,
-                                    'type_caisson_id'=> 2,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
-                        }
+                        } // fin insert itinéraire BT16 1
 
-                        //insert caisson de type CT
-                        if($data[$i]["CT"] != ""){
-                            $nbCT = $data[$i]["CT"];
-                            for ($j=0,$o=1; $j < $nbCT; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CT-".$i,
-                                    'type_caisson_id'=> 3,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        //insert itinéraire BT16 2
+                        if($data[$i]["IT B 2"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-B2')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 2"],
+                                ]);   
+                            }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B2",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 2"],
+                                ]);    
+                            }   
+                        } //insert itinéraire BT16 2
+
+                        //insert itinéraire BT16 3
+                        if($data[$i]["IT B 3"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-B3')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 3"],
+                                ]);   
+                            }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B3",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 3"],
+                                ]);    
+                            }
+                        } //insert itinéraire BT16 3
+
+                        //insert itinéraire CS1 camion
+                        if($data[$i]["IT CS 1"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-CS1')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 1"],
+                                ]);   
+                            }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS1",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 1"],
+                                ]);    
+                            }    
+                        } //fin insert itinéraire CS 1
+
+                        //insert itinéraire CS2 camion
+                        if($data[$i]["IT CS 2"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-CS2')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 2"],
+                                ]);   
+                            }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS2",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 2"],
+                                ]);    
+                            }  
+                        } //fin insert itinéraire CS 2
+
+                        //insert itinéraire CS3 camion
+                        if($data[$i]["IT CS 3"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-CS3')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 3"],
+                                ]);   
+                            }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS3",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 3"],
+                                ]);    
+                            }
+                        } //fin insert itinéraire CS 3
+
+                       /* //insert itinéraire Tricycle
+                        if($data[$i]["IT CT 1"] != ""){
+                            $nbITCT1 = $data[$i]["IT CT 1"] + $data[$i]["IT CT 2"] + $data[$i]["IT CT 3"]);
+                            for ($j=0,$o=1; $j < $nbITCT; $j++,$o++) { 
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CT".$i,
+                                    'libelle_ar'=> "",
+                                    'type_itineraire_id'=> 3,
+                                    'commune_id'=> 1,
+                                ]);
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
                                     'ordre'=> $o,
                                 ]);
                             }
                             
-                        }
-                    }
+                        } */
+                    } //fin insert zone 1
+
+                    //insert zone 2
                     if($data[$i]["Zone"] == "TVZ 2")
                     {
                         $emplacements = emplacements::create([
@@ -125,67 +270,175 @@ class TestController extends Controller
                             'coordonnees_gps'=> $data[$i]["Coordonnées GPS"],
                             'etat'=> "",
                             'priorite_id'=> 1,
+                            'CT' => (int) $data[$i]["CT"],
+                            'CB' => (int) $data[$i]["CB"],
+                            'CS' => (int) $data[$i]["CS"],
                             'description'=> ""
                         ]);
-                        //insert caisson de type CB
-                        if($data[$i]["CB"] != ""){
-                            $nbCB = $data[$i]["CB"];
-                            for ($j=0,$o=1; $j < $nbCB; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CB-".$i,
-                                    'type_caisson_id'=> 1,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+
+                        //insert itinéraire BT16 1
+                        if($data[$i]["IT B 1"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-B1')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 1"],
+                                ]);   
                             }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B1",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 1"],
+                                ]);    
+                            }
+
+                        } //fin insert itinéraire ITB1 
+
+                        //insert itinéraire BT16 2
+                        if($data[$i]["IT B 2"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-B2')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 2"],
+                                ]);   
+                            }
+                            else
+                            {
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B2",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 2"],
+                                ]);    
+                            }      
+                        } // fin insert itinéraire BT16 2
+
+                        //insert itinéraire BT16 3
+                        if($data[$i]["IT B 3"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-B3')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 3"],
+                                ]);   
+                            }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B3",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 3"],
+                                ]);    
+                            }
+
                             
                         }
 
-                        //insert caisson de type CS
-                        if($data[$i]["CS"] != ""){
-                            $nbCS = $data[$i]["CS"];
-                            for ($j=0,$o=1; $j < $nbCS; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CS-".$i,
-                                    'type_caisson_id'=> 2,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        //insert itinéraire CS1 camion
+                        if($data[$i]["IT CS 1"] != "")
+                        {
+                            $idItineraire = itineraires::where('libelle','IT-CS1')->first();
+                            if($idItineraire != null)
+                            {
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 1"],
+                                ]);   
                             }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS1",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 1"],
+                                ]);    
+                            }
+
                             
                         }
 
-                        //insert caisson de type CT
-                        if($data[$i]["CT"] != ""){
-                            $nbCT = $data[$i]["CT"];
-                            for ($j=0,$o=1; $j < $nbCT; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CT-".$i,
-                                    'type_caisson_id'=> 3,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        //insert itinéraire CS2 camion
+                        if($data[$i]["IT CS 2"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-CS2')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 2"],
+                                ]);   
                             }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS2",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 2"],
+                                ]);    
+                            }
+
                             
                         }
+
+                        //insert itinéraire CS3 camion
+                        if($data[$i]["IT CS 3"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-CS3')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 3"],
+                                ]);   
+                            }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS3",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 3"],
+                                ]);    
+                            }
+
+                            
+                        }
+
                     }
                     if($data[$i]["Zone"] == "TVZ 3")
                     {
@@ -197,66 +450,164 @@ class TestController extends Controller
                             'coordonnees_gps'=> $data[$i]["Coordonnées GPS"],
                             'etat'=> "",
                             'priorite_id'=> 1,
+                            'CT' => (int) $data[$i]["CT"],
+                            'CB' => (int) $data[$i]["CB"],
+                            'CS' => (int) $data[$i]["CS"],
                             'description'=> ""
                         ]);
-
-                        //insert caisson de type CB
-                        if($data[$i]["CB"] != ""){
-                            $nbCB = $data[$i]["CB"];
-                            for ($j=0,$o=1; $j < $nbCB; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CB-".$i,
-                                    'type_caisson_id'=> 1,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        
+                        //insert itinéraire BT16 1
+                        if($data[$i]["IT B 1"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-B1')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 1"],
+                                ]);   
                             }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B1",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 1"],
+                                ]);    
+                            }
+
+                        }
+
+                        //insert itinéraire BT16 2
+                        if($data[$i]["IT B 2"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-B2')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 2"],
+                                ]);   
+                            }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B2",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 2"],
+                                ]);    
+                            }
+
                             
                         }
 
-                        //insert caisson de type CS
-                        if($data[$i]["CS"] != ""){
-                            $nbCS = $data[$i]["CS"];
-                            for ($j=0,$o=1; $j < $nbCS; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CS-".$i,
-                                    'type_caisson_id'=> 2,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        //insert itinéraire BT16 3
+                        if($data[$i]["IT B 3"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-B3')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT B 3"],
+                                ]);   
                             }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-B3",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire BT16 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT B 3"],
+                                ]);    
+                            }
+
                             
                         }
 
-                        //insert caisson de type CT
-                        if($data[$i]["CT"] != ""){
-                            $nbCT = $data[$i]["CT"];
-                            for ($j=0,$o=1; $j < $nbCT; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CT-".$i,
-                                    'type_caisson_id'=> 3,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
+                        //insert itinéraire CS1 camion
+                        if($data[$i]["IT CS 1"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-CS1')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
                                     'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 1"],
+                                ]);   
                             }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS1",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 1"],
+                                ]);    
+                            }
+
+                            
+                        }
+
+                        //insert itinéraire CS2 camion
+                        if($data[$i]["IT CS 2"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-CS2')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 2"],
+                                ]);   
+                            }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS2",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 2"],
+                                ]);    
+                            }
+
+                            
+                        }
+
+                        //insert itinéraire CS3 camion
+                        if($data[$i]["IT CS 3"] != ""){
+                            $idItineraire = itineraires::where('libelle','IT-CS3')->first();
+                            if($idItineraire != null){
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $idItineraire->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 3"],
+                                ]);   
+                            }
+                            else{
+                                $itineraires = itineraires::create([
+                                    'libelle'=> "IT-CS3",
+                                    'libelle_ar'=> "",
+                                ]);
+                                //insert emplacement itinéraire camion 1
+                                $itinerairesemplacements = itineraires_emplacements::create([
+                                    'emplacement_id'=> $emplacements->id,
+                                    'itineraire_id'=> $itineraires->id,
+                                    'ordre'=> (int) $data[$i]["IT CS 3"],
+                                ]);    
+                            }
+
                             
                         }
                     }
@@ -271,72 +622,169 @@ class TestController extends Controller
                         'coordonnees_gps'=> $data[$i]["Coordonnées GPS"],
                         'etat'=> "",
                         'priorite_id'=> 1,
+                        'CT' => (int) $data[$i]["CT"],
+                        'CB' => (int) $data[$i]["CB"],
+                        'CS' => (int) $data[$i]["CS"],
                         'description'=> ""                    
                     ]);
-                    // User::firstOrCreate($data[$i]);
-                    //insert caisson de type CB
-                    if($data[$i]["CB"] != ""){
-                        $nbCB = $data[$i]["CB"];
-                        for ($j=0,$o=1; $j < $nbCB; $j++,$o++) { 
-                            $caissons = Caissons::create([
-                                'code'=> "CB-".$i,
-                                'type_caisson_id'=> 1,
-                                'date_acquisition'=> null,
-                                'volume'=> null,
-                                'cout_acquisition'=> null,
-                            ]);
-                            $emplacementcaissons = emplacements_caissons::create([
-                                'emplacement_id'=> $emplacements->id,
-                                'caisson_id'=> $caissons->id,
-                                'ordre'=> $o,
-                            ]);
-                        }
-                        
-                    }
-
-                    //insert caisson de type CS
-                    if($data[$i]["CS"] != ""){
-                        $nbCS = $data[$i]["CS"];
-                        for ($j=0,$o=1; $j < $nbCS; $j++,$o++) { 
-                            $caissons = Caissons::create([
-                                'code'=> "CS-".$i,
-                                'type_caisson_id'=> 2,
-                                'date_acquisition'=> null,
-                                'volume'=> null,
-                                'cout_acquisition'=> null,
-                            ]);
-                            $emplacementcaissons = emplacements_caissons::create([
-                                'emplacement_id'=> $emplacements->id,
-                                'caisson_id'=> $caissons->id,
-                                'ordre'=> $o,
-                            ]);
-                        }
-                        
-                    }
-
-                    //insert caisson de type CT
-                    if($data[$i]["CT"] != ""){
-                        $nbCT = $data[$i]["CT"];
-                        for ($j=0,$o=1; $j < $nbCT; $j++,$o++) { 
-                            $caissons = Caissons::create([
-                                'code'=> "CT-".$i,
-                                'type_caisson_id'=> 3,
-                                'date_acquisition'=> null,
-                                'volume'=> null,
-                                'cout_acquisition'=> null,
-                            ]);
-                            $emplacementcaissons = emplacements_caissons::create([
-                                'emplacement_id'=> $emplacements->id,
-                                'caisson_id'=> $caissons->id,
-                                'ordre'=> $o,
-                            ]);
-                        }
-                        
-                    }
-                 }
-                 if ($data[$i]["COMMUNE"] == "KSAR") {
                     
-                    if($data[$i]["Zone"] == "KSAR 1")
+                    //insert itinéraire BT16 1
+                    if($data[$i]["IT B 1"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B1')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 1"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B1",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 1"],
+                            ]);    
+                        }
+
+                    }
+
+                    //insert itinéraire BT16 2
+                    if($data[$i]["IT B 2"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B2')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 2"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B2",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 2"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire BT16 3
+                    if($data[$i]["IT B 3"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B3')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 3"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B3",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 3"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS1 camion
+                    if($data[$i]["IT CS 1"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS1')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 1"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS1",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 1"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS2 camion
+                    if($data[$i]["IT CS 2"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS2')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 2"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS2",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 2"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS3 camion
+                    if($data[$i]["IT CS 3"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS3')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 3"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS3",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 3"],
+                            ]);    
+                        }    
+                    }
+
+                }
+                if ($data[$i]["COMMUNE"] == "KSAR") {
+                    
+                    if($data[$i]["Zone"] == "KS1")
                     {
                         $emplacements = emplacements::create([
                             'code'=> $data[$i]["EMP"],
@@ -346,70 +794,170 @@ class TestController extends Controller
                             'coordonnees_gps'=> $data[$i]["Coordonnées GPS"],
                             'etat'=> "",
                             'priorite_id'=> 1,
+                            'CT' => (int) $data[$i]["CT"],
+                            'CB' => (int) $data[$i]["CB"],
+                            'CS' => (int) $data[$i]["CS"],
                             'description'=> ""
                         ]);
-                        
-                        //insert caisson de type CB
-                        if($data[$i]["CB"] != ""){
-                            $nbCB = $data[$i]["CB"];
-                            for ($j=0,$o=1; $j < $nbCB; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CB-".$i,
-                                    'type_caisson_id'=> 1,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
+                        //insert itinéraire BT16 1
+                    //insert itinéraire BT16 1
+                    if($data[$i]["IT B 1"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B1')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 1"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B1",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 1"],
+                            ]);    
                         }
 
-                        //insert caisson de type CS
-                        if($data[$i]["CS"] != ""){
-                            $nbCS = $data[$i]["CS"];
-                            for ($j=0,$o=1; $j < $nbCS; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CS-".$i,
-                                    'type_caisson_id'=> 2,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
-                        }
-
-                        //insert caisson de type CT
-                        if($data[$i]["CT"] != ""){
-                            $nbCT = $data[$i]["CT"];
-                            for ($j=0,$o=1; $j < $nbCT; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CT-".$i,
-                                    'type_caisson_id'=> 3,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
-                        }
                     }
-                    if($data[$i]["Zone"] == "KSAR 2")
+
+                    //insert itinéraire BT16 2
+                    if($data[$i]["IT B 2"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B2')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 2"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B2",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 2"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire BT16 3
+                    if($data[$i]["IT B 3"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B3')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 3"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B3",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 3"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS1 camion
+                    if($data[$i]["IT CS 1"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS1')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 1"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS1",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 1"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS2 camion
+                    if($data[$i]["IT CS 2"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS2')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 2"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS2",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 2"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS3 camion
+                    if($data[$i]["IT CS 3"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS3')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 3"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS3",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 3"],
+                            ]);    
+                        }
+
+                        
+                    }
+                        
+                        
+                    }
+                    if($data[$i]["Zone"] == "KS2")
                     {
                         $emplacements = emplacements::create([
                             'code'=> $data[$i]["EMP"],
@@ -419,80 +967,232 @@ class TestController extends Controller
                             'coordonnees_gps'=> $data[$i]["Coordonnées GPS"],
                             'etat'=> "",
                             'priorite_id'=> 1,
+                            'CT' => (int) $data[$i]["CT"],
+                            'CB' => (int) $data[$i]["CB"],
+                            'CS' => (int) $data[$i]["CS"],
                             'description'=> ""
                         ]);
                         
-                        //insert caisson de type CB
-                        if($data[$i]["CB"] != ""){
-                            $nbCB = $data[$i]["CB"];
-                            for ($j=0,$o=1; $j < $nbCB; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CB-".$i,
-                                    'type_caisson_id'=> 1,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
+                    //insert itinéraire BT16 1
+                    if($data[$i]["IT B 1"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B1')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 1"],
+                            ]);   
                         }
-
-                        //insert caisson de type CS
-                        if($data[$i]["CS"] != ""){
-                            $nbCS = $data[$i]["CS"];
-                            for ($j=0,$o=1; $j < $nbCS; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CS-".$i,
-                                    'type_caisson_id'=> 2,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
-                        }
-
-                        //insert caisson de type CT
-                        if($data[$i]["CT"] != ""){
-                            $nbCT = $data[$i]["CT"];
-                            for ($j=0,$o=1; $j < $nbCT; $j++,$o++) { 
-                                $caissons = Caissons::create([
-                                    'code'=> "CT-".$i,
-                                    'type_caisson_id'=> 3,
-                                    'date_acquisition'=> null,
-                                    'volume'=> null,
-                                    'cout_acquisition'=> null,
-                                ]);
-                                $emplacementcaissons = emplacements_caissons::create([
-                                    'emplacement_id'=> $emplacements->id,
-                                    'caisson_id'=> $caissons->id,
-                                    'ordre'=> $o,
-                                ]);
-                            }
-                            
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B1",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 1"],
+                            ]);    
                         }
 
                     }
-                    // User::firstOrCreate($data[$i]);
-                 }
+
+                    //insert itinéraire BT16 2
+                    if($data[$i]["IT B 2"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B2')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 2"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B2",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 2"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire BT16 3
+                    if($data[$i]["IT B 3"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-B3')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT B 3"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-B3",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire BT16 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT B 3"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS1 camion
+                    if($data[$i]["IT CS 1"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS1')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 1"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS1",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 1"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS2 camion
+                    if($data[$i]["IT CS 2"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS2')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 2"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS2",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 2"],
+                            ]);    
+                        }
+
+                        
+                    }
+
+                    //insert itinéraire CS3 camion
+                    if($data[$i]["IT CS 3"] != ""){
+                        $idItineraire = itineraires::where('libelle','IT-CS3')->first();
+                        if($idItineraire != null){
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $idItineraire->id,
+                                'ordre'=> (int) $data[$i]["IT CS 3"],
+                            ]);   
+                        }
+                        else{
+                            $itineraires = itineraires::create([
+                                'libelle'=> "IT-CS3",
+                                'libelle_ar'=> "",
+                            ]);
+                            //insert emplacement itinéraire camion 1
+                            $itinerairesemplacements = itineraires_emplacements::create([
+                                'emplacement_id'=> $emplacements->id,
+                                'itineraire_id'=> $itineraires->id,
+                                'ordre'=> (int) $data[$i]["IT CS 3"],
+                            ]);    
+                        }
+
+                        
+                    }
+                        
+
+                    }
+                }
 
             }      
          return "ok";
     }
 
 
-    public function insertAgents(){
-        $file = public_path('testcaisson.csv');
+    public function insertAgents()
+    {
+        $file = public_path('Agents2.csv');
         $data = $this->csvToArray($file);
+        //dd($data);
+        for ($i = 0; $i < count($data); $i++)
+        {
+            if ($data[$i]["Fonction"] == "Chef d'equipe") 
+            {
+                $agents = agents::create([
+                    'nom'=> $data[$i]["Nom & Prenom"],
+                    'prenom'=> $data[$i]["Nom & Prenom"],
+                    'genre'=> 'H',
+                    'lieuN'=> '',
+                    'etat_civil'=> "",
+                    'telephone'=> (int) $data[$i]["Contact"],
+                    'fonction_id' => 3,
+                    'niveau' => $data[$i]["Niveau"],
+                    'langues' => $data[$i]["Langue(s)"],
+                    'categories' => "",
+                ]);
+            }
+            // 
+            if ($data[$i]["Fonction"] == "Rippeur") 
+            {
+                $agents = agents::create([
+                    'nom'=> $data[$i]["Nom & Prenom"],
+                    'prenom'=> $data[$i]["Nom & Prenom"],
+                    'genre'=> 'H',
+                    'lieuN'=> '',
+                    'etat_civil'=> "",
+                    'telephone'=> (int) $data[$i]["Contact"],
+                    'fonction_id' => 4,
+                    'niveau' => $data[$i]["Niveau"],
+                    'langues' => $data[$i]["Langue(s)"],
+                    'categories' => "",
+                ]);
+            }
+
+            if ($data[$i]["Fonction"] == "Chauffeur") 
+            {
+                $agents = agents::create([
+                    'nom'=> $data[$i]["Nom & Prenom"],
+                    'prenom'=> $data[$i]["Nom & Prenom"],
+                    'genre'=> 'H',
+                    'lieuN'=> '',
+                    'etat_civil'=> "",
+                    'telephone'=> (int) $data[$i]["Contact"],
+                    'fonction_id' => 1,
+                    'niveau' => $data[$i]["Niveau"],
+                    'langues' => $data[$i]["Langue(s)"],
+                    'categories' => "",
+                ]);
+            }
+        }
+        return "ok agents";    
     }
+
 }
